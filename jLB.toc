@@ -1,0 +1,9 @@
+## Interface: 50100
+## Author: me
+## Title: jCH
+## Notes: Living Bomb tracker.
+
+## LoadManagers: AddonLoader
+## X-LoadOn-Class: Mage
+
+code.lua
