@@ -41,7 +41,7 @@ function f:CLEU(eventType, ...)
       -- WARNING: This won't work when e.g. mouseover casting.
       local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
                                                              "Living Bomb")
-      self:ShowBar(destGUID, destName, duration, expires)
+      self:ShowBar(destGUID, destName, destRaidFlags, duration, expires)
     end
 
   -- This happens when:
@@ -80,7 +80,7 @@ end
 
 -- TODO move config from here maybe
 -- Will update the bar if it exists.
-function f:ShowBar(destGUID, destName, duration, expires)
+function f:ShowBar(destGUID, destName, destRaidFlags, duration, expires)
   local bar = self.bars[destGUID]
   if not bar then
     bar = candy:New(barTexture, 150, 16)
@@ -90,7 +90,13 @@ function f:ShowBar(destGUID, destName, duration, expires)
     bar.candyBarLabel:SetFont(FONT, 10)
     bar.candyBarDuration:SetFont(FONT, 8)
     bar:SetTimeVisibility(false)
-    -- TODO raid marker
+    if destRaidFlags then
+      local icon = log2(bit.band(destRaidFlags, COMBATLOG_OBJECT_RAIDTARGET_MASK))
+      if icon then
+        bar:SetIcon("Interface\\TargetingFrame\\UI-RaidTargetingIcon_" .. icon)
+      end
+    end
+
 
     bar:Set("jlb:destguid", destGUID)
     self.bars[destGUID] = bar
@@ -117,4 +123,10 @@ function f:LibCandyBar_Stop(event, bar)
 end
 
 
+local LOG2_TABLE = { [1]=1, [2]=2, [4]=3, [8]=4,
+                     [16]=5, [32]=6, [64]=7, [128]=8 }
+-- XXX local
+function log2(n)
+  return LOG2_TABLE[n]
+end
 main()
