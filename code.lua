@@ -46,7 +46,6 @@ function f:CLEU(eventType, ...)
 
   -- This happens when:
   -- * A mob dies.
-  -- TODO is this fired when the target dies? test it
   -- * A fourth LB is cast and the first is removed.
   elseif event == "SPELL_AURA_REMOVED" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
@@ -125,8 +124,7 @@ end
 
 local LOG2_TABLE = { [1]=1, [2]=2, [4]=3, [8]=4,
                      [16]=5, [32]=6, [64]=7, [128]=8 }
--- XXX local
-function log2(n)
+local function log2(n)
   return LOG2_TABLE[n]
 end
 main()
