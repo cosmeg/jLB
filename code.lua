@@ -14,8 +14,7 @@ local function main()
   -- what units does this get?
   --f:RegisterEvent("UNIT_AURA")
 
-  -- would I need to use unfiltered?
-  -- is this better or worse than UNIT_AURA?
+  -- how bad is this, performance wise?
   f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
@@ -28,16 +27,33 @@ function f:CLEU(eventType, ...)
 
   if sourceGUID ~= PLAYER_GUID then return end
 
+  --print(event)
+
   if event == "SPELL_AURA_APPLIED" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
     if spellName == "Living Bomb" then
       print(event)
       print(spellName)
-      -- TODO correct target
-      --local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 = UnitDebuff(unitID, "Living Bomb")
+      -- When we see a new one, it must be either from a LB cast or splash with
+      -- IB. In either case, it would have the duration of the one on our
+      -- target.
+      -- WARNING: This won't work when e.g. mouseover casting.
       local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
                                                              "Living Bomb")
-      self:ShowBar(duration, expires, destGUID)  -- TODO real duration
+      self:ShowBar(destGUID, duration, expires)
+    end
+
+  elseif event == "SPELL_AURA_REFRESH" then
+    -- XXX factor
+    local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
+    if spellName == "Living Bomb" then
+      print(event)
+      print(spellName)
+      -- Same logic as above. If there's a refresh it must be from splashing
+      -- off our current target. (However I don't think it actually does this.)
+      local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
+                                                             "Living Bomb")
+      self:UpdateBar(destGUID, duration, expires)
     end
 
   elseif event == "SPELL_AURA_REMOVED" then
@@ -74,8 +90,7 @@ end
 
 
 -- TODO move config from here maybe
--- TODO handle refreshing the dot
-function f:ShowBar(duration, expires, destGUID)
+function f:ShowBar(destGUID, duration, expires)
   local bar = candy:New(barTexture, 150, 16)
   bar:SetLabel("bomb!")
   bar:SetDuration(duration)
@@ -85,8 +100,20 @@ function f:ShowBar(duration, expires, destGUID)
   self.bars[destGUID] = bar
 
   bar:Start()
-  bar.exp = expires  -- warning private
+  bar.exp = expires  -- private
   self:PositionBars()
+end
+
+
+
+function f:UpdateBar(destGUID, duration, expires)
+  local bar = self.bars[destGUID]
+  if duration then
+    bar:SetDuration(duration)
+  end
+  if expires then
+    bar.exp = expires  -- private
+  end
 end
 
 
@@ -109,3 +136,7 @@ end
 
 
 main()
+
+
+-- (reference)
+--local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 = UnitDebuff(unitID, "Living Bomb")
