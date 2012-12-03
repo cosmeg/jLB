@@ -33,8 +33,11 @@ function f:CLEU(eventType, ...)
     if spellName == "Living Bomb" then
       print(event)
       print(spellName)
-      -- TODO factor out
-      self:ShowBar(11.50, destGUID)  -- TODO real duration
+      -- XXX correct target
+      -- TODO use 'expires' instead of duration
+      --local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 = UnitDebuff(unitID, "Living Bomb")
+      local duration = (select(6, UnitDebuff("target", "Living Bomb")))
+      self:ShowBar(duration, destGUID)  -- TODO real duration
     end
 
   elseif event == "SPELL_AURA_REMOVED" then
@@ -42,11 +45,10 @@ function f:CLEU(eventType, ...)
     if spellName == "Living Bomb" then
       print(event)
       print(spellName)
+      -- TODO remove from bars
+      -- TODO is this fired when the target dies?
     end
   end
-  
-  --local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 = UnitDebuff(unitID, "Living Bomb")
-  --local value2 = select(15, UnitDebuff("target", "Ignite"))
 end
 
 
@@ -55,6 +57,7 @@ end
 function f:PositionBars()
   -- XXX get rid of this sort? strictly speaking we know the order already
   local function BarSorter(a, b)
+    -- TODO sort by guid
     return a.remaining < b.remaining
   end
   local sorted = {}
@@ -76,7 +79,7 @@ function f:ShowBar(t, destGUID)
   local bar = candy:New(barTexture, 150, 16)
   bar:SetLabel("bomb!")
   bar:SetDuration(t)
-  -- TODO font
+  -- TODO font, color, icon
 
   bar:Set("jlb:destguid", destGUID)
   self.bars[destGUID] = bar
