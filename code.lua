@@ -32,8 +32,7 @@ function f:CLEU(eventType, ...)
   if event == "SPELL_AURA_APPLIED" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
     if spellName == "Living Bomb" then
-      print(event)
-      print(spellName)
+      print(string.format("%s %q", event, spellName))
       -- When we see a new one, it must be either from a LB cast or splash with
       -- IB. In either case, it would have the duration of the one on our
       -- target.
@@ -44,11 +43,10 @@ function f:CLEU(eventType, ...)
     end
 
   elseif event == "SPELL_AURA_REFRESH" then
-    -- XXX factor
+    -- XXX refactor? try to merge UpdateBar into ShowBar
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
     if spellName == "Living Bomb" then
-      print(event)
-      print(spellName)
+      print(string.format("%s %q", event, spellName))
       -- Same logic as above. If there's a refresh it must be from splashing
       -- off our current target. (However I don't think it actually does this.)
       local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
@@ -59,8 +57,7 @@ function f:CLEU(eventType, ...)
   elseif event == "SPELL_AURA_REMOVED" then
     local spellID, spellName, spellSchool = select(12, ...)
     if spellName == "Living Bomb" then
-      print(event)
-      print(spellName)
+      print(string.format("%s %q", event, spellName))
       -- TODO remove from bars
       -- TODO is this fired when the target dies?
     end
@@ -73,7 +70,7 @@ end
 function f:PositionBars()
   -- XXX get rid of this sort? strictly speaking we know the order already
   local function BarSorter(a, b)
-    -- TODO sort by guid
+    -- TODO sort by guid (would prevent bouncing)
     return a.remaining < b.remaining
   end
   local sorted = {}
@@ -92,9 +89,11 @@ end
 -- TODO move config from here maybe
 function f:ShowBar(destGUID, duration, expires)
   local bar = candy:New(barTexture, 150, 16)
-  bar:SetLabel("bomb!")
   bar:SetDuration(duration)
-  -- TODO font, color, icon
+  bar:SetLabel("bomb!")
+  bar:SetIcon("Interface\\Icons\\Ability_Mage_LivingBomb")
+  bar:SetColor(1, 0, 0)
+  -- TODO font, color, icon, raid marker
 
   bar:Set("jlb:destguid", destGUID)
   self.bars[destGUID] = bar
@@ -119,19 +118,7 @@ end
 
 --local function BarStopped(event, bar)
 function f:LibCandyBar_Stop(event, bar)
-  print("bar stopped")
   self.bars[bar:Get("jlb:destguid")] = nil
-end
-    
-
--- XXX remove
-local function tprint(t)
-  local s = "{ "
-  for k,v in ipairs(t) do
-    s = s .. v .. " "
-  end
-  s = s .. "}"
-  print(s)
 end
 
 
