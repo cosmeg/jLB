@@ -101,7 +101,7 @@ function f:ShowBar(destGUID, destName, destRaidFlags, duration, expires)
     self.bars[destGUID] = bar
   end
 
-  if duration then bar:SetDuration(duration) end
+  bar:SetDuration(duration or 11.50)
   bar:Start()
   if expires then bar.exp = expires end  -- private
   self:PositionBars()
@@ -124,7 +124,7 @@ end
 
 local LOG2_TABLE = { [1]=1, [2]=2, [4]=3, [8]=4,
                      [16]=5, [32]=6, [64]=7, [128]=8 }
-local function log2(n)
+function log2(n)
   return LOG2_TABLE[n]
 end
 main()
