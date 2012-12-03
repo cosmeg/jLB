@@ -41,7 +41,7 @@ function f:CLEU(eventType, ...)
       -- WARNING: This won't work when e.g. mouseover casting.
       local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
                                                              "Living Bomb")
-      self:ShowBar(destGUID, duration, expires)
+      self:ShowBar(destGUID, destName, duration, expires)
     end
 
   -- This happens when:
@@ -80,15 +80,16 @@ end
 
 -- TODO move config from here maybe
 -- Will update the bar if it exists.
-function f:ShowBar(destGUID, duration, expires)
+function f:ShowBar(destGUID, destName, duration, expires)
   local bar = self.bars[destGUID]
   if not bar then
     bar = candy:New(barTexture, 150, 16)
-    bar:SetLabel("bomb!")
+    if destName then bar:SetLabel(destName) end
     bar:SetIcon("Interface\\Icons\\Ability_Mage_LivingBomb")
     bar:SetColor(1, 0, 0)
-    bar.candyBarLabel:SetFont(FONT, 12)
-    bar.candyBarDuration:SetFont(FONT, 10)
+    bar.candyBarLabel:SetFont(FONT, 10)
+    bar.candyBarDuration:SetFont(FONT, 8)
+    bar:SetTimeVisibility(false)
     -- TODO raid marker
 
     bar:Set("jlb:destguid", destGUID)
