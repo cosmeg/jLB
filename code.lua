@@ -54,12 +54,15 @@ function f:CLEU(eventType, ...)
       self:UpdateBar(destGUID, duration, expires)
     end
 
+  -- This happens when:
+  -- * A mob dies.
+  -- TODO is this fired when the target dies? test it
+  -- * A fourth LB is cast and the first is removed.
   elseif event == "SPELL_AURA_REMOVED" then
-    local spellID, spellName, spellSchool = select(12, ...)
+    local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
     if spellName == "Living Bomb" then
       print(string.format("%s %q", event, spellName))
-      -- TODO remove from bars
-      -- TODO is this fired when the target dies?
+      self:RemoveBar(destGUID)
     end
   end
 end
@@ -93,7 +96,7 @@ function f:ShowBar(destGUID, duration, expires)
   bar:SetLabel("bomb!")
   bar:SetIcon("Interface\\Icons\\Ability_Mage_LivingBomb")
   bar:SetColor(1, 0, 0)
-  -- TODO font, color, icon, raid marker
+  -- TODO font, raid marker
 
   bar:Set("jlb:destguid", destGUID)
   self.bars[destGUID] = bar
@@ -102,7 +105,6 @@ function f:ShowBar(destGUID, duration, expires)
   bar.exp = expires  -- private
   self:PositionBars()
 end
-
 
 
 function f:UpdateBar(destGUID, duration, expires)
@@ -116,14 +118,18 @@ function f:UpdateBar(destGUID, duration, expires)
 end
 
 
---local function BarStopped(event, bar)
+function f:RemoveBar(destGUID)
+  local bar = self.bars[destGUID]
+  if bar then
+    bar:Stop()  -- this will call LibCandyBar_Stop
+    self:PositionBars()
+  end
+end
+
+
 function f:LibCandyBar_Stop(event, bar)
   self.bars[bar:Get("jlb:destguid")] = nil
 end
 
 
 main()
-
-
--- (reference)
---local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 = UnitDebuff(unitID, "Living Bomb")

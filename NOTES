@@ -1,0 +1,28 @@
+actually, this mod might not be needed at all!
+
+When you splash LB it *will not* refresh/overwrite another one.
+
+So e.g. this is safe:
+- LB target 1
+- LB target 2
+- IB target 2
+    it won't reset target 1
+
+Also
+- LB t1
+- IT to t2 t3
+- t1 dies
+- LB t4
+- IT
+    won't affect t2 or t3
+
+it's still useful to see *how many* are active
+  but how accurate is it?
+
+TODO what about more than 3 targets?
+
+
+
+
+-- (reference)
+--local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 = UnitDebuff(unitID, "Living Bomb")
