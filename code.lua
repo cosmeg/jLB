@@ -33,11 +33,11 @@ function f:CLEU(eventType, ...)
     if spellName == "Living Bomb" then
       print(event)
       print(spellName)
-      -- XXX correct target
-      -- TODO use 'expires' instead of duration
+      -- TODO correct target
       --local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 = UnitDebuff(unitID, "Living Bomb")
-      local duration = (select(6, UnitDebuff("target", "Living Bomb")))
-      self:ShowBar(duration, destGUID)  -- TODO real duration
+      local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
+                                                             "Living Bomb")
+      self:ShowBar(duration, expires, destGUID)  -- TODO real duration
     end
 
   elseif event == "SPELL_AURA_REMOVED" then
@@ -75,16 +75,17 @@ end
 
 -- TODO move config from here maybe
 -- TODO handle refreshing the dot
-function f:ShowBar(t, destGUID)
+function f:ShowBar(duration, expires, destGUID)
   local bar = candy:New(barTexture, 150, 16)
   bar:SetLabel("bomb!")
-  bar:SetDuration(t)
+  bar:SetDuration(duration)
   -- TODO font, color, icon
 
   bar:Set("jlb:destguid", destGUID)
   self.bars[destGUID] = bar
 
   bar:Start()
+  bar.exp = expires  -- warning private
   self:PositionBars()
 end
 
