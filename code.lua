@@ -29,29 +29,17 @@ function f:CLEU(eventType, ...)
 
   --print(event)
 
-  if event == "SPELL_AURA_APPLIED" then
+  if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
     if spellName == "Living Bomb" then
       print(string.format("%s %q", event, spellName))
       -- When we see a new one, it must be either from a LB cast or splash with
       -- IB. In either case, it would have the duration of the one on our
-      -- target.
+      -- target. The same logic applies to a refresh.
       -- WARNING: This won't work when e.g. mouseover casting.
       local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
                                                              "Living Bomb")
       self:ShowBar(destGUID, duration, expires)
-    end
-
-  elseif event == "SPELL_AURA_REFRESH" then
-    -- XXX refactor? try to merge UpdateBar into ShowBar
-    local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
-    if spellName == "Living Bomb" then
-      print(string.format("%s %q", event, spellName))
-      -- Same logic as above. If there's a refresh it must be from splashing
-      -- off our current target. (However I don't think it actually does this.)
-      local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
-                                                             "Living Bomb")
-      self:UpdateBar(destGUID, duration, expires)
     end
 
   -- This happens when:
@@ -90,31 +78,24 @@ end
 
 
 -- TODO move config from here maybe
+-- Will update the bar if it exists.
 function f:ShowBar(destGUID, duration, expires)
-  local bar = candy:New(barTexture, 150, 16)
-  bar:SetDuration(duration)
-  bar:SetLabel("bomb!")
-  bar:SetIcon("Interface\\Icons\\Ability_Mage_LivingBomb")
-  bar:SetColor(1, 0, 0)
-  -- TODO font, raid marker
-
-  bar:Set("jlb:destguid", destGUID)
-  self.bars[destGUID] = bar
-
-  bar:Start()
-  bar.exp = expires  -- private
-  self:PositionBars()
-end
-
-
-function f:UpdateBar(destGUID, duration, expires)
   local bar = self.bars[destGUID]
-  if duration then
-    bar:SetDuration(duration)
+  if not bar then
+    bar = candy:New(barTexture, 150, 16)
+    bar:SetLabel("bomb!")
+    bar:SetIcon("Interface\\Icons\\Ability_Mage_LivingBomb")
+    bar:SetColor(1, 0, 0)
+    -- TODO font, raid marker
+
+    bar:Set("jlb:destguid", destGUID)
+    self.bars[destGUID] = bar
   end
-  if expires then
-    bar.exp = expires  -- private
-  end
+
+  if duration then bar:SetDuration(duration) end
+  bar:Start()
+  if expires then bar.exp = expires end  -- private
+  self:PositionBars()
 end
 
 
