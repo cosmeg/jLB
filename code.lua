@@ -61,8 +61,7 @@ end
 function f:PositionBars()
   -- XXX get rid of this sort? strictly speaking we know the order already
   local function BarSorter(a, b)
-    -- TODO sort by guid (would prevent bouncing)
-    return a.remaining < b.remaining
+    return a:Get("jlb:destguid") < b:Get("jlb:destguid")
   end
   local sorted = {}
   for k,bar in pairs(self.bars) do
