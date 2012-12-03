@@ -6,4 +6,7 @@
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Class: Mage
 
+libs\LibStub.lua
+libs\LibCandyBar-3.0\lib.xml
+
 code.lua
