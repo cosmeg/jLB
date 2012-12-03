@@ -3,7 +3,9 @@
 local f = CreateFrame("frame")
 local candy = LibStub("LibCandyBar-3.0")
 local barTexture = "Interface\\AddOns\\SharedMedia\\statusbar\\Flat"
+
 local PLAYER_GUID = UnitGUID("player")
+local FONT = "Interface\\Addons\\SharedMedia_MyMedia\\fonts\\HelveticaNeue.ttf"
 
 local function main()
   f.bars = {}
@@ -85,7 +87,9 @@ function f:ShowBar(destGUID, duration, expires)
     bar:SetLabel("bomb!")
     bar:SetIcon("Interface\\Icons\\Ability_Mage_LivingBomb")
     bar:SetColor(1, 0, 0)
-    -- TODO font, raid marker
+    bar.candyBarLabel:SetFont(FONT, 12)
+    bar.candyBarDuration:SetFont(FONT, 10)
+    -- TODO raid marker
 
     bar:Set("jlb:destguid", destGUID)
     self.bars[destGUID] = bar
