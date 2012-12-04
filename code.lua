@@ -34,7 +34,7 @@ function f:CLEU(eventType, ...)
   if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
     if spellName == "Living Bomb" then
-      print(string.format("%s %q", event, spellName))
+      --print(string.format("%s %q", event, spellName))
       -- When we see a new one, it must be either from a LB cast or splash with
       -- IB. In either case, it would have the duration of the one on our
       -- target. The same logic applies to a refresh.
@@ -50,7 +50,7 @@ function f:CLEU(eventType, ...)
   elseif event == "SPELL_AURA_REMOVED" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
     if spellName == "Living Bomb" then
-      print(string.format("%s %q", event, spellName))
+      --print(string.format("%s %q", event, spellName))
       self:RemoveBar(destGUID)
     end
   end
