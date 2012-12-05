@@ -118,7 +118,14 @@ end
 
 
 function f:LibCandyBar_Stop(event, bar)
-  self.bars[bar:Get("jlb:destguid")] = nil
+  -- XXX
+  local guid = bar:Get("jlb:destguid")
+  if guid then
+    self.bars[guid] = nil
+  else
+    print("no jlb:destguid")
+    print(#self.bars)
+  end
 end
 
 
