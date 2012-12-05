@@ -33,15 +33,14 @@ function f:CLEU(eventType, ...)
 
   if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
-    if spellName == "Living Bomb" then
+    if spellName == "Living Bomb" or spellName == "Nether Tempest" or spellName == "Frost Bomb" then
       --print(string.format("%s %q", event, spellName))
       -- When we see a new one, it must be either from a LB cast or splash with
       -- IB. In either case, it would have the duration of the one on our
       -- target. The same logic applies to a refresh.
       -- WARNING: This won't work when e.g. mouseover casting.
-      local _, _, _, _, _, duration, expires, _ = UnitDebuff("target",
-                                                             "Living Bomb")
-      self:ShowBar(destGUID, destName, destRaidFlags, duration, expires)
+      local _, _, icon, _, _, duration, expires, _ = UnitDebuff("target", spellName)
+      self:ShowBar(destGUID, destName, icon, destRaidFlags, duration, expires)
     end
 
   -- This happens when:
@@ -49,7 +48,7 @@ function f:CLEU(eventType, ...)
   -- * A fourth LB is cast and the first is removed.
   elseif event == "SPELL_AURA_REMOVED" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
-    if spellName == "Living Bomb" then
+    if spellName == "Living Bomb" or "Nether Tempest" or "Frost Bomb" then
       --print(string.format("%s %q", event, spellName))
       self:RemoveBar(destGUID)
     end
@@ -77,14 +76,13 @@ function f:PositionBars()
 end
 
 
--- TODO move config from here maybe
 -- Will update the bar if it exists.
-function f:ShowBar(destGUID, destName, destRaidFlags, duration, expires)
+function f:ShowBar(destGUID, destName, icon, destRaidFlags, duration, expires)
   local bar = self.bars[destGUID]
   if not bar then
     bar = candy:New(barTexture, 150, 16)
     if destName then bar:SetLabel(destName) end
-    bar:SetIcon("Interface\\Icons\\Ability_Mage_LivingBomb")
+    bar:SetIcon(icon)
     bar:SetColor(1, 0, 0)
     bar.candyBarLabel:SetFont(FONT, 10)
     bar.candyBarDuration:SetFont(FONT, 8)
