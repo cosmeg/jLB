@@ -1,4 +1,9 @@
 TODO add sheep?
+put in nameplates instead of bars?
+TODO emphasize current target?
+  listen to target-swap event
+  get the guid
+  style bars
 
 
 actually, this mod might not be needed at all!

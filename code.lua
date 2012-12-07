@@ -12,18 +12,19 @@ local function main()
 
   candy.RegisterCallback(f, "LibCandyBar_Stop")
 
-  f:SetScript("OnEvent", f.CLEU)
+  f:SetScript("OnEvent", function(self, event, ...) f[event](self, ...) end)
   -- what units does this get?
   --f:RegisterEvent("UNIT_AURA")
 
   -- how bad is this, performance wise?
   f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  f:RegisterEvent("PLAYER_TARGET_CHANGED")
 end
 
 
 -- I care about: lb applications, lb removals, deaths, lb explosions?
 -- Keep track of duration (obviously).
-function f:CLEU(eventType, ...)
+function f:COMBAT_LOG_EVENT_UNFILTERED(...)
   local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags,
         sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = ...
 
@@ -56,8 +57,16 @@ function f:CLEU(eventType, ...)
 end
 
 
---/run bar=LibStub("LibCandyBar-3.0"):New("Interface\\AddOns\\SharedMedia\\statusbar\\Flat",100,16);bar:SetDuration(600);bar:SetPoint("BOTTOMLEFT");bar:Start()
---/run bar:ClearAllPoints();bar:SetPoint("TOPLEFT", WorldFrame, "CENTER",400,-300)
+function f:PLAYER_TARGET_CHANGED(...)
+  local guid = UnitGUID("target")
+  if f.bars[guid] then
+    f.bars[guid]:SetColor(1, 0, 0, 1)
+    --f.bars[f.last_target]:SetColor(1, 0, 0, .75)
+    f.last_target = guid
+  end
+end
+
+
 function f:PositionBars()
   -- XXX get rid of this sort? strictly speaking we know the order already
   local function BarSorter(a, b)
@@ -83,7 +92,7 @@ function f:ShowBar(destGUID, destName, icon, destRaidFlags, duration, expires)
     bar = candy:New(barTexture, 150, 16)
     if destName then bar:SetLabel(destName) end
     bar:SetIcon(icon)
-    bar:SetColor(1, 0, 0)
+    bar:SetColor(1, 0, 0, .75)
     bar.candyBarLabel:SetFont(FONT, 10)
     bar.candyBarDuration:SetFont(FONT, 8)
     bar:SetTimeVisibility(false)
@@ -116,11 +125,11 @@ end
 
 
 function f:LibCandyBar_Stop(event, bar)
-  -- XXX
   local guid = bar:Get("jlb:destguid")
   if guid then
     self.bars[guid] = nil
   else
+    -- this seems to happen a lot for living bomb
     print("no jlb:destguid")
     print(#self.bars)
   end
