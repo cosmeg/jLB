@@ -125,18 +125,10 @@ end
 
 
 function f:LibCandyBar_Stop(event, bar)
-  if not bar then
-    print("no bar!")
-  end
-
   local guid = bar:Get("jlb:destguid")
+  -- This does fire for other addons (e.g. Bigwigs). Make sure it's ours.
   if guid then
     self.bars[guid] = nil
-  else
-    -- I'm not sure why this happens
-    print("no jlb:destguid")
-    print(#self.bars)
-    print(bar.candyBarLabel:GetText())
   end
 end
 
