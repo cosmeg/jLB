@@ -1,3 +1,19 @@
+no jlb:destguid
+  I was getting a lot of these w/ nether tempest on shek'zeer
+    it's possible this is due to refreshing
+      (something that doesn't happen often with living bomb)
+    it's also possible it's due to adds (?)
+  try this
+    NT, wait, refresh NT, let it fall off ==> works
+    frost bomb - explodes before it expires
+  double deleting?
+  is there really a bar object w/ no destguid? how?
+  bar recycling?
+  XXX is the guid the same?
+    i.e. 2 mobs
+  is the guid ever being set?
+
+
 TODO add sheep?
 put in nameplates instead of bars?
 TODO emphasize current target?

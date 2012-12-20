@@ -17,6 +17,7 @@ local function main()
   --f:RegisterEvent("UNIT_AURA")
 
   -- how bad is this, performance wise?
+  -- TODO try filtered
   f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   f:RegisterEvent("PLAYER_TARGET_CHANGED")
 end
@@ -103,7 +104,6 @@ function f:ShowBar(destGUID, destName, icon, destRaidFlags, duration, expires)
       end
     end
 
-
     bar:Set("jlb:destguid", destGUID)
     self.bars[destGUID] = bar
   end
@@ -125,13 +125,18 @@ end
 
 
 function f:LibCandyBar_Stop(event, bar)
+  if not bar then
+    print("no bar!")
+  end
+
   local guid = bar:Get("jlb:destguid")
   if guid then
     self.bars[guid] = nil
   else
-    -- this seems to happen a lot for living bomb
+    -- I'm not sure why this happens
     print("no jlb:destguid")
     print(#self.bars)
+    print(bar.candyBarLabel:GetText())
   end
 end
 
@@ -141,4 +146,6 @@ local LOG2_TABLE = { [1]=1, [2]=2, [4]=3, [8]=4,
 function log2(n)
   return LOG2_TABLE[n]
 end
+
+
 main()
