@@ -31,16 +31,22 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(...)
 
   if sourceGUID ~= PLAYER_GUID then return end
 
-  --print(event)
+  --print(event, sourceName, destName)
 
-  if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" then
+  if event == "SPELL_AURA_APPLIED" or
+     event == "SPELL_AURA_REFRESH" or
+     event == "SPELL_CAST_SUCCESS" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
-    if spellName == "Living Bomb" or spellName == "Nether Tempest" or spellName == "Frost Bomb" then
+    if self:IsSpellByName(spellName) then
       --print(string.format("%s %q", event, spellName))
       -- When we see a new one, it must be either from a LB cast or splash with
       -- IB. In either case, it would have the duration of the one on our
       -- target. The same logic applies to a refresh.
       -- WARNING: This won't work when e.g. mouseover casting.
+      --          Nor will it work for Renewing Mist splashing.
+      --          XXX but will splashing ever/often renew?
+      -- XXX this is hackish, but keeping this as UnitDebuff instead of
+      -- UnitAura keeps the default for RM below, but still works for LB
       local _, _, icon, _, _, duration, expires, _ = UnitDebuff("target", spellName)
       self:ShowBar(destGUID, destName, icon, destRaidFlags, duration, expires)
     end
@@ -50,11 +56,18 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(...)
   -- * A fourth LB is cast and the first is removed.
   elseif event == "SPELL_AURA_REMOVED" then
     local spellID, spellName, spellSchool, auraType, amount = select(12, ...)
-    if spellName == "Living Bomb" or "Nether Tempest" or "Frost Bomb" then
+    if self:IsSpellByName(spellName) then
       --print(string.format("%s %q", event, spellName))
       self:RemoveBar(destGUID)
     end
   end
+end
+
+
+-- XXX better method name?
+function f:IsSpellByName(spellName)
+  -- TODO populate this at load for each class (or disable)
+  return (spellName == "Renewing Mist" or spellName == "Living Bomb" or spellName == "Nether Tempest" or spellName == "Frost Bomb")
 end
 
 
@@ -71,7 +84,8 @@ end
 function f:PositionBars()
   -- XXX get rid of this sort? strictly speaking we know the order already
   local function BarSorter(a, b)
-    return a:Get("jlb:destguid") < b:Get("jlb:destguid")
+    --return a:Get("jlb:destguid") < b:Get("jlb:destguid")
+    return a.exp < b.exp
   end
   local sorted = {}
   for k,bar in pairs(self.bars) do
@@ -88,6 +102,7 @@ end
 
 -- Will update the bar if it exists.
 function f:ShowBar(destGUID, destName, icon, destRaidFlags, duration, expires)
+  --print(destGUID, destName, icon, destRaidFlags, duration, expires)
   local bar = self.bars[destGUID]
   if not bar then
     bar = candy:New(barTexture, 150, 16)
@@ -108,7 +123,13 @@ function f:ShowBar(destGUID, destName, icon, destRaidFlags, duration, expires)
     self.bars[destGUID] = bar
   end
 
-  bar:SetDuration(duration or 11.50)
+  -- XXX
+  if not duration then
+    --print(duration)
+  end
+  --bar:SetDuration(duration or 11.50)  -- XXX lb value
+  bar:SetDuration(duration or 18.0)  -- renewing mist
+
   bar:Start()
   if expires then bar.exp = expires end  -- private
   self:PositionBars()

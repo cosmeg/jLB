@@ -4,7 +4,7 @@
 ## Notes: Living Bomb tracker.
 
 ## LoadManagers: AddonLoader
-## X-LoadOn-Class: Mage
+## X-LoadOn-Always: delayed
 
 libs\LibStub.lua
 libs\LibCandyBar-3.0\lib.xml
