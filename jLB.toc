@@ -1,7 +1,7 @@
 ## Interface: 50100
 ## Author: me
-## Title: jCH
-## Notes: Living Bomb tracker.
+## Title: jLB
+## Notes: Living Bomb (and Renewing Mist) tracker.
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
